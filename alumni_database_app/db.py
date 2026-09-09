@@ -1,0 +1,168 @@
+"""
+Database layer for the Alumni Database Querier.
+
+Uses SQLite by default (zero-config, single file, no server required).
+To migrate to PostgreSQL later, just change DB_URL below (and
+`pip install psycopg2-binary`) - everything else stays the same
+because this uses SQLAlchemy Core.
+"""
+
+import os
+
+import pandas as pd
+from sqlalchemy import create_engine, text
+
+APP_DIR = os.path.dirname(os.path.abspath(__file__))
+DB_PATH = os.path.join(APP_DIR, "alumni_database.db")
+
+# Example for PostgreSQL later:
+#   DB_URL = "postgresql+psycopg2://user:password@localhost:5432/alumni"
+DB_URL = f"sqlite:///{DB_PATH}"
+ENGINE = create_engine(DB_URL)
+TABLE_NAME = "alumni"
+
+BASE_COLUMNS = [
+    "first_name", "last_name", "email", "current_company",
+    "graduation_year", "major", "linked_in",
+]
+
+DEFAULT_QUESTION_COLUMNS = {
+    "q_internship": "Willing to provide internship opportunities?",
+    "q_guest_lecture": "Willing to provide a guest lecture?",
+    "q_capstone_mentor": "Willing to mentor a Senior Capstone Project?",
+    "q_company_visits": "Willing to allow student company visits?",
+}
+
+
+def init_db():
+    question_cols_sql = "".join(f', "{c}" TEXT' for c in DEFAULT_QUESTION_COLUMNS)
+    create_sql = f"""
+        CREATE TABLE IF NOT EXISTS {TABLE_NAME} (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            first_name TEXT,
+            last_name TEXT,
+            email TEXT UNIQUE,
+            current_company TEXT,
+            graduation_year INTEGER,
+            major TEXT,
+            linked_in TEXT
+            {question_cols_sql}
+        )
+    """
+    with ENGINE.begin() as conn:
+        conn.execute(text(create_sql))
+
+
+def get_table_columns():
+    with ENGINE.begin() as conn:
+        result = conn.execute(text(f"PRAGMA table_info({TABLE_NAME})"))
+        return [row[1] for row in result.fetchall()]
+
+
+def get_question_columns():
+    all_cols = get_table_columns()
+    ignore = set(BASE_COLUMNS) | {"id"}
+    return [c for c in all_cols if c not in ignore]
+
+
+def add_column_if_missing(col_name, col_type="TEXT"):
+    cols = get_table_columns()
+    if col_name not in cols:
+        with ENGINE.begin() as conn:
+            conn.execute(text(f'ALTER TABLE {TABLE_NAME} ADD COLUMN "{col_name}" {col_type}'))
+
+
+def normalize_yes_no(value):
+    if value is None:
+        return None
+    s = str(value).strip().lower()
+    if s in ("yes", "y", "true", "1"):
+        return "Yes"
+    if s in ("no", "n", "false", "0"):
+        return "No"
+    if s in ("", "nan"):
+        return None
+    return str(value).strip()
+
+
+def ingest_dataframe(df: pd.DataFrame):
+    """
+    Ingest a dataframe into the database.
+    - New columns (e.g. new questionnaire questions) are added to the
+      schema automatically.
+    - Rows are matched on email: existing emails are updated, new
+      emails are inserted.
+    Returns (inserted_count, updated_count, skipped_count).
+    """
+    df = df.copy()
+    df.columns = [str(c).strip().lower().replace(" ", "_") for c in df.columns]
+
+    if "email" not in df.columns:
+        raise ValueError("CSV must include an 'email' column (used to identify unique alumni).")
+
+    if "graduation_year" in df.columns:
+        df["graduation_year"] = pd.to_numeric(df["graduation_year"], errors="coerce")
+
+    for col in df.columns:
+        if col not in BASE_COLUMNS:
+            df[col] = df[col].apply(normalize_yes_no)
+
+    existing_cols = get_table_columns()
+    for col in df.columns:
+        if col not in existing_cols and col != "id":
+            col_type = "INTEGER" if col == "graduation_year" else "TEXT"
+            add_column_if_missing(col, col_type)
+
+    inserted, updated, skipped = 0, 0, 0
+    with ENGINE.begin() as conn:
+        for _, row in df.iterrows():
+            email = str(row.get("email", "")).strip()
+            if not email or email.lower() == "nan":
+                skipped += 1
+                continue
+
+            row_dict = {k: (None if pd.isna(v) else v) for k, v in row.to_dict().items()}
+            if row_dict.get("graduation_year") is not None:
+                row_dict["graduation_year"] = int(row_dict["graduation_year"])
+
+            existing = conn.execute(
+                text(f"SELECT id FROM {TABLE_NAME} WHERE email = :email"), {"email": email}
+            ).fetchone()
+
+            if existing:
+                set_clause = ", ".join(f'"{c}" = :{c}' for c in row_dict if c != "email")
+                row_dict["email"] = email
+                if set_clause:
+                    conn.execute(
+                        text(f"UPDATE {TABLE_NAME} SET {set_clause} WHERE email = :email"),
+                        row_dict,
+                    )
+                updated += 1
+            else:
+                cols = list(row_dict.keys())
+                col_sql = ", ".join(f'"{c}"' for c in cols)
+                val_sql = ", ".join(f":{c}" for c in cols)
+                conn.execute(
+                    text(f"INSERT INTO {TABLE_NAME} ({col_sql}) VALUES ({val_sql})"),
+                    row_dict,
+                )
+                inserted += 1
+
+    return inserted, updated, skipped
+
+
+def run_query(sql, params=None):
+    with ENGINE.begin() as conn:
+        return pd.read_sql(text(sql), conn, params=params or {})
+
+
+def get_distinct_values(col):
+    df = run_query(
+        f'SELECT DISTINCT "{col}" FROM {TABLE_NAME} '
+        f'WHERE "{col}" IS NOT NULL AND "{col}" != \'\' ORDER BY "{col}"'
+    )
+    return df[col].tolist()
+
+
+def question_label(qcol):
+    return DEFAULT_QUESTION_COLUMNS.get(qcol, qcol.replace("q_", "").replace("_", " ").title())

@@ -1,0 +1,31 @@
+first_name,last_name,email,current_company,graduation_year,major,linked_in,q_internship,q_guest_lecture,q_capstone_mentor,q_company_visits
+Ava,Johnson,ava.johnson0@example.edu,Microsoft,2022,Computer Science,https://linkedin.com/in/avajohnson,Yes,Yes,Yes,Yes
+Liam,Smith,liam.smith1@example.edu,Google,2022,Marketing,,No,Yes,Yes,Yes
+Sophia,Williams,sophia.williams2@example.edu,Tesla,2015,Marketing,https://linkedin.com/in/sophiawilliams,Yes,No,Yes,No
+Noah,Brown,noah.brown3@example.edu,IBM,2021,Computer Science,https://linkedin.com/in/noahbrown,Yes,No,No,No
+Mia,Garcia,mia.garcia4@example.edu,Deloitte,2014,Chemistry,,No,Yes,No,No
+Ethan,Miller,ethan.miller5@example.edu,IBM,2021,Computer Science,https://linkedin.com/in/ethanmiller,Yes,No,Yes,No
+Emma,Davis,emma.davis6@example.edu,NVIDIA,2022,Chemistry,https://linkedin.com/in/emmadavis,Yes,Yes,Yes,No
+Lucas,Rodriguez,lucas.rodriguez7@example.edu,Tesla,2013,Mechanical Engineering,https://linkedin.com/in/lucasrodriguez,No,No,Yes,No
+Olivia,Martinez,olivia.martinez8@example.edu,Deloitte,2017,Finance,https://linkedin.com/in/oliviamartinez,Yes,Yes,Yes,Yes
+Mason,Wilson,mason.wilson9@example.edu,Intel,2019,Civil Engineering,https://linkedin.com/in/masonwilson,Yes,No,Yes,Yes
+Isabella,Anderson,isabella.anderson10@example.edu,Avista,2012,Biology,https://linkedin.com/in/isabellaanderson,Yes,No,Yes,No
+James,Taylor,james.taylor11@example.edu,Unemployed / N/A,2018,Data Analytics,,Yes,Yes,No,No
+Amelia,Thomas,amelia.thomas12@example.edu,Intel,2021,Chemistry,https://linkedin.com/in/ameliathomas,Yes,No,Yes,Yes
+Benjamin,Moore,benjamin.moore13@example.edu,Schweitzer Engineering Labs,2013,Finance,https://linkedin.com/in/benjaminmoore,No,Yes,No,No
+Charlotte,Jackson,charlotte.jackson14@example.edu,Nike,2021,Marketing,https://linkedin.com/in/charlottejackson,Yes,Yes,No,No
+Elijah,Martin,elijah.martin15@example.edu,Cisco,2013,Biology,https://linkedin.com/in/elijahmartin,Yes,No,Yes,Yes
+Harper,Lee,harper.lee16@example.edu,Cisco,2022,Finance,https://linkedin.com/in/harperlee,Yes,Yes,No,Yes
+Logan,Perez,logan.perez17@example.edu,Amazon,2020,Marketing,https://linkedin.com/in/loganperez,No,No,Yes,Yes
+Evelyn,Thompson,evelyn.thompson18@example.edu,Cisco,2017,Business,,Yes,Yes,No,Yes
+Alexander,White,alexander.white19@example.edu,Ford,2024,Electrical Engineering,,No,Yes,No,No
+Abigail,Harris,abigail.harris20@example.edu,Ford,2015,Materials Science,https://linkedin.com/in/abigailharris,No,No,No,No
+Michael,Sanchez,michael.sanchez21@example.edu,Nike,2020,Mechanical Engineering,https://linkedin.com/in/michaelsanchez,Yes,No,Yes,Yes
+Emily,Clark,emily.clark22@example.edu,Tesla,2021,Computer Science,,Yes,Yes,Yes,Yes
+Daniel,Ramirez,daniel.ramirez23@example.edu,Boeing,2017,Marketing,https://linkedin.com/in/danielramirez,No,Yes,Yes,No
+Ella,Lewis,ella.lewis24@example.edu,Oracle,2015,Biology,https://linkedin.com/in/ellalewis,Yes,No,No,No
+Ava,Johnson,ava.johnson25@example.edu,Nike,2018,Materials Science,,Yes,Yes,No,No
+Liam,Smith,liam.smith26@example.edu,Microsoft,2024,Business,https://linkedin.com/in/liamsmith,No,Yes,No,Yes
+Sophia,Williams,sophia.williams27@example.edu,Nike,2016,Business,https://linkedin.com/in/sophiawilliams,Yes,No,Yes,Yes
+Noah,Brown,noah.brown28@example.edu,Ford,2022,Computer Science,https://linkedin.com/in/noahbrown,Yes,Yes,No,No
+Mia,Garcia,mia.garcia29@example.edu,Deloitte,2019,Biology,https://linkedin.com/in/miagarcia,Yes,No,Yes,No
