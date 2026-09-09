@@ -1,1 +1,103 @@
-# Coug-Alumni-Project
+# Alumni Database Querier (Prototype)
+
+A simple local web app for searching, filtering, and analyzing alumni
+engagement survey data. Runs entirely on your own machine — no cloud
+account, no external database server, no configuration.
+
+## Why SQLite instead of PostgreSQL?
+
+The main requirement for this prototype was "download the files and just
+run it, on any machine." PostgreSQL needs a database *server* installed
+and running before the app can even start, which works against that goal.
+SQLite is a single file and ships built into Python, so there is nothing
+to install or configure — the app creates `alumni_database.db`
+automatically the first time it runs. It comfortably handles well beyond
+250,000 rows for this kind of query workload.
+
+If this ever needs to grow into a shared, multi-user, always-on system,
+the data layer (`db.py`) uses SQLAlchemy, so moving to PostgreSQL later
+is a matter of changing one connection string (`DB_URL`) — the rest of
+the app doesn't need to change.
+
+## What's included
+
+| File | Purpose |
+|---|---|
+| `Alumni_Database_App.ipynb` | Jupyter notebook — installs dependencies and launches the app for you |
+| `app.py` | The Streamlit web app (UI) |
+| `db.py` | Database logic (SQLite via SQLAlchemy) |
+| `requirements.txt` | Python package dependencies |
+| `sample_alumni_data.csv` | 30 rows of dummy data to try the app with |
+| `run.sh` / `run.bat` | Double-click launchers for Mac/Linux and Windows |
+
+## How to run it
+
+**Easiest: use the notebook.** Open `Alumni_Database_App.ipynb` in Jupyter
+and run all cells top to bottom. It will install anything missing and
+open the app in your browser automatically.
+
+**Or from a terminal:**
+
+```bash
+pip install -r requirements.txt
+streamlit run app.py
+```
+
+Then open the URL it prints (usually `http://localhost:8501`).
+
+**Or double-click:** `run.sh` (Mac/Linux) or `run.bat` (Windows).
+
+Requires Python 3.9+. Nothing else needs to be pre-installed — pip will
+fetch Streamlit, pandas, and SQLAlchemy for you.
+
+## Using the app
+
+- **🔍 Search & Filter** — search by name, company, major, graduation
+  year (a specific year or a range), and any Yes/No questionnaire
+  answer. Results update live and can be downloaded as a CSV.
+- **📊 Analytics** — headline counts, graduation-year distribution,
+  questionnaire response rates, top companies, and top majors.
+- **📋 View All Data** — the full table, downloadable as CSV.
+- **📤 Upload / Ingest CSV** — upload a CSV to add or update records
+  (matched by email), or load the included sample dataset with one click.
+- **⚙️ Settings** — see the database file location and current columns,
+  or clear all data to start over.
+
+## CSV format for data ingestion
+
+Required column:
+- `email` — used as the unique key. Uploading a CSV with an email that
+  already exists in the database **updates** that person's record
+  instead of creating a duplicate.
+
+Recommended columns:
+`first_name`, `last_name`, `current_company`, `graduation_year`, `major`,
+`linked_in`
+
+Questionnaire columns — name them starting with `q_`, e.g.:
+`q_internship`, `q_guest_lecture`, `q_capstone_mentor`, `q_company_visits`
+
+**Adding new questions later:** just add a new `q_`-prefixed column to
+your CSV (e.g. `q_alumni_panel`) and upload it — the app automatically
+adds it to the database and it will show up as a new filter and chart.
+Values of `yes/no/y/n/true/false/1/0` (any case) are normalized to a
+clean "Yes"/"No".
+
+A ready-to-use example is included: `sample_alumni_data.csv`.
+
+## Sharing this with someone else
+
+Zip up this whole folder and send it to them. They unzip it, then either
+run the notebook or run `run.sh` / `run.bat`. Each person gets their own
+local `alumni_database.db` file, so instances don't interfere with each
+other. To share your actual data with someone, just send them your
+`alumni_database.db`, or export a CSV from **View All Data** and have
+them ingest it via **Upload / Ingest CSV**.
+
+## Notes on scale
+
+This prototype is being tested with a small amount of dummy data, but is
+built to scale to the ~250,000-row range without changes — SQLite and
+the indexed lookups used here handle that comfortably on a single
+machine. If usage grows to many concurrent users editing data at once,
+that's the point to consider moving to PostgreSQL (see above).
