@@ -101,3 +101,27 @@ built to scale to the ~250,000-row range without changes — SQLite and
 the indexed lookups used here handle that comfortably on a single
 machine. If usage grows to many concurrent users editing data at once,
 that's the point to consider moving to PostgreSQL (see above).
+
+## Free live hosting
+
+The app can be hosted for free with [Streamlit Community Cloud](https://streamlit.io/cloud).
+For a live app, use a free PostgreSQL database such as Supabase instead of the
+local SQLite file. Hosted app files are not reliable permanent storage, so do
+not use SQLite for important live data.
+
+1. Push this repository to GitHub. The app entry point is
+  `alumni_database_app/app.py`.
+2. Create a free Supabase project and copy its PostgreSQL connection string.
+3. In Streamlit Community Cloud, create an app from the repository, set the
+  main file to `alumni_database_app/app.py`, and add this secret:
+
+  ```toml
+  DATABASE_URL = "postgresql+psycopg2://USER:PASSWORD@HOST:5432/postgres"
+  ```
+
+  Use the connection string supplied by your database provider. Keep the
+  password in Streamlit Secrets, never in GitHub.
+4. Deploy. The app creates its table automatically on first startup.
+
+Without `DATABASE_URL`, the app still uses local SQLite, so local development
+and the Windows launcher continue to work as before.
